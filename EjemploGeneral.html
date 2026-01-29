@@ -1,0 +1,1165 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pago | Ejemplo de prueba</title>
+<!-- TipografÃ­a moderna -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+  <style>
+    :root{
+      /* Paleta Pay-me (logo) */
+      --magenta:#FF2F9A;
+      --violeta:#B24BFF;
+      --azul:#5A6DFF;
+      --celeste:#3CC5FF;
+      --verde:#37D99D;
+      --verde-claro:#6ED66A;
+
+      --gris-900:#0B0B0B;
+      --gris-600:#4A4F5A;
+      --gris-200:#E6E9F2;
+      --blanco:#ffffff;
+      --fondo:#F4F6FF;
+
+
+
+      --radius-lg:16px;
+      --radius-xl:22px;
+      --shadow-1:0 8px 22px rgba(15, 23, 42, .10);
+      --shadow-2:0 18px 48px rgba(15, 23, 42, .18);
+      --timing:.25s cubic-bezier(.2,.7,.2,1);
+    }
+
+    *{margin:0;padding:0;box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      font-family: Inter, Arial, sans-serif;
+      background: var(--fondo);
+      color:var(--gris-900);
+      -webkit-font-smoothing:antialiased;
+    }
+
+    /* Header */
+    header{
+      background:var(--blanco);
+      height:72px;
+      display:flex;
+      align-items:center;
+      padding:0 20px;
+      box-shadow:0 1px 0 var(--gris-200);
+      cursor:pointer;
+    }
+    header img{height:50px; width:auto}
+
+    /* Layout asimÃ©trico */
+    .stage{
+      display:grid;
+      grid-template-columns: 430px 1fr;
+      min-height:100vh;
+      position:relative;
+    }
+    .payme-logo{
+      position: absolute;
+      right: 24px;
+ 
+      z-index: 3;
+
+      /* Responsive + proporcional */
+      width: clamp(190px, 18vw, 280px); /* min, ideal, max */
+      height: auto;
+      aspect-ratio: auto; /* mantiene proporciÃ³n natural */
+
+      /* Evita que el logo se â€œestireâ€ si fuera un <img> con reglas globales */
+      object-fit: contain;
+
+      /* Sombra mÃ¡s controlada y moderna */
+      filter: drop-shadow(-12px 0 14px rgba(150, 150, 150, 0.9));
+
+    }
+    .stage::before{
+      content:"";
+      position:absolute;
+      inset:0 38% 0 0;
+      background: url("Fondooooo.png") center/cover no-repeat;
+      clip-path: polygon(0 0, 100% 0, 86% 100%, 0% 100%);
+      z-index:0;
+    }
+
+    /* Caja opciones */
+    .options{
+      grid-column:1/2;
+      align-self:center;
+      margin:40px;
+      background:rgba(255,255,255,.6);
+      border-radius:var(--radius-xl);
+      box-shadow:var(--shadow-2);
+      padding:28px;
+      width:min(380px, 90%);
+      z-index:2;
+      position:relative;
+      border:1px solid rgba(255,255,255,.5);
+      backdrop-filter: blur(12px) saturate(140%);
+      -webkit-backdrop-filter: blur(12px) saturate(140%);
+    }
+    .panel-toggle{
+      position:absolute;
+      right:-18px;
+      top:22px;
+      width:36px;
+      height:36px;
+      border:none;
+      border-radius:12px;
+      background:linear-gradient(120deg, var(--violeta), var(--azul));
+      color:#fff;
+      box-shadow:var(--shadow-1);
+      cursor:pointer;
+      display:grid;
+      place-items:center;
+    }
+    .panel-toggle:focus-visible{
+      outline:3px solid rgba(60, 197, 255, .45);
+      outline-offset:2px;
+    }
+    .panel-peek{
+      display:none;
+      position:fixed;
+      left:16px;
+      top: 20px;
+      z-index:6;
+      padding:10px 12px 10px 10px;
+      background:rgba(255,255,255,.78);
+      border:1px solid rgba(255,255,255,.55);
+      backdrop-filter: blur(12px) saturate(140%);
+      -webkit-backdrop-filter: blur(12px) saturate(140%);
+      border-radius:14px;
+      box-shadow:var(--shadow-1);
+      cursor:pointer;
+      color:var(--gris-900);
+      font-size:12px;
+      line-height:1.1;
+      align-items:center;
+      gap:10px;
+      max-width:220px;
+    }
+    .panel-peek .peek-text{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+    .panel-peek .peek-title{
+      font-weight:700;
+      color:var(--violeta);
+      font-size:12px;
+    }
+    .panel-peek .peek-sub{
+      color:var(--gris-600);
+      font-size:11px;
+    }
+    .panel-peek .peek-icon{
+      width:28px;
+      height:28px;
+      border-radius:10px;
+      background:linear-gradient(120deg, var(--violeta), var(--azul));
+      color:#fff;
+      display:grid;
+      place-items:center;
+      flex:0 0 auto;
+      font-size:14px;
+    }
+
+    .stage.panel-cerrado .options{
+      transform:translateX(-120%);
+      opacity:0;
+      pointer-events:none;
+    }
+    .stage.panel-cerrado .panel-toggle{
+      display:none;
+    }
+    .stage.panel-cerrado .panel-peek{
+      display:flex;
+    }
+    .stage.panel-cerrado .payment-wrap{
+      grid-column:1/-1;
+      justify-content:center;
+      align-items:center;
+    }
+    .stage.flow-activo .payment-container{
+      display:block;
+    }
+    .stage.flow-activo #demo{
+      display:block;
+    }
+    .options{
+      transition: transform var(--timing), opacity var(--timing);
+    }
+    .options h2{
+      font-size:22px;
+      font-weight:700;
+      color:var(--violeta);
+      margin-bottom:6px;
+    }
+    .sub{font-size:13px; color:var(--gris-600); margin-bottom:18px}
+
+    .field{display:flex; flex-direction:column; gap:4px}
+    .field label{font-size:14px; font-weight:600; color:var(--azul)}
+    .field input{
+      padding:12px 14px;
+      border-radius:10px;
+      border:1px solid var(--gris-200);
+      background:#fff;
+      font-size:15px;
+      transition:border var(--timing), box-shadow var(--timing);
+    }
+    .field input:focus{
+      border-color:var(--violeta);
+      box-shadow:0 0 0 3px rgba(178, 75, 255, .25);
+      outline:none;
+    }
+    .field select{
+      width:100%;
+      padding:12px 44px 12px 14px;
+      border-radius:10px;
+      border:1px solid var(--gris-200);
+      background:#fff;
+      font-size:15px;
+      font-family: Inter, Arial, sans-serif;
+      transition:border var(--timing), box-shadow var(--timing);
+      appearance:none;
+    }
+    .field select:focus{
+      border-color:var(--violeta);
+      box-shadow:0 0 0 3px rgba(178, 75, 255, .25);
+      outline:none;
+    }
+    .select-wrap{position:relative}
+    .select-wrap i{
+      position:absolute;
+      right:14px;
+      top:50%;
+      transform:translateY(-50%);
+      font-size:16px;
+      color:var(--gris-600);
+      pointer-events:none;
+    }
+
+    /* Botones */
+    .stack{display:flex; flex-direction:column; gap:14px}
+    .payment-option{
+      --w:100%;
+      width:var(--w);
+      padding:14px 18px;
+      font-weight:600;
+      font-size:15px;
+      background:linear-gradient(120deg, var(--magenta), var(--violeta) 45%, var(--azul));
+      color:#fff;
+      border:none;
+      border-radius:12px;
+      box-shadow:var(--shadow-1);
+      cursor:pointer;
+      transition: transform var(--timing), background var(--timing), box-shadow var(--timing);
+    }
+    .payment-option:hover{
+      background:linear-gradient(120deg, var(--violeta), var(--azul) 55%, var(--celeste));
+      transform:translateY(-1px);
+      box-shadow:0 10px 26px rgba(90, 109, 255, .28)
+    }
+    .payment-option:active{ transform:translateY(0)}
+    .payment-option:focus-visible{ outline:3px solid rgba(60, 197, 255, .45); outline-offset:2px}
+
+    .payment-option:nth-child(1){ --w: 85% }
+    .payment-option:nth-child(2){ --w: 65% }
+    .payment-option:nth-child(3){ --w: 95% }
+
+    .metodos-title{
+      font-size:18px;
+      font-weight:700;
+      color:var(--violeta);
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .metodos-grid{
+      margin-top:12px;
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap:12px;
+    }
+    .metodo-item input{display:none}
+    .metodo-box{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:14px 16px;
+      background:#fff;
+      border:2px solid #f4ede7;
+      border-radius:12px;
+      transition:.25s;
+    }
+    .metodo-item input:checked + .metodo-box{
+      border-color:var(--azul);
+      box-shadow:0 6px 16px rgba(90, 109, 255, .15);
+    }
+    .check{
+      width:20px;
+      height:20px;
+      border:2px solid var(--azul);
+      border-radius:6px;
+      position:relative;
+    }
+    .metodo-item input:checked + .metodo-box .check{
+      background:var(--azul);
+      border-color:var(--azul);
+    }
+    .metodo-item input:checked + .metodo-box .check::after{
+      content:"✓";
+      position:absolute;
+      color:#fff;
+      font-size:13px;
+      left:2px;
+      top:-1px;
+    }
+    .metodo-text{font-size:15px; font-weight:600; color:var(--gris-900)}
+    .logo-icon,.logos img{height:26px}
+    .logos img.card{height:18px; margin-right:5px}
+
+    /* Ãrea formulario */
+    .payment-wrap{
+      grid-column:2/3;
+      display:flex; align-items:center; justify-content:center;
+      padding:50px;
+      z-index:1;
+    }
+    .payment-container{
+      width:min(950px, 100%);
+      background:var(--blanco);
+      border:1px solid var(--gris-200);
+      border-radius:var(--radius-lg);
+      box-shadow:var(--shadow-1);
+      padding:28px;
+      display:none;
+    }
+    #loading{font-size:18px; color:#666; display:none}
+    #demo{display:none; width:100%}
+    .loader{
+      display:none;
+      animation: rotate 1s infinite;
+      height: 50px;
+      width: 50px;
+      margin:12px 0 0;
+    }
+    .loader:before,
+    .loader:after{
+      border-radius: 50%;
+      content: "";
+      display: block;
+      height: 20px;
+      width: 20px;
+    }
+    .loader:before{
+      animation: ball1 1s infinite;
+      background-color: #fff;
+      box-shadow: 30px 0 0 #5A6DFF;
+      margin-bottom: 10px;
+    }
+    .loader:after{
+      animation: ball2 1s infinite;
+      background-color: #37D99D;
+      box-shadow: 30px 0 0 #fff;
+    }
+    @keyframes rotate{
+      0% { transform: rotate(0deg) scale(0.8) }
+      50% { transform: rotate(360deg) scale(1.2) }
+      100% { transform: rotate(720deg) scale(0.8) }
+    }
+    @keyframes ball1{
+      0% { box-shadow: 30px 0 0 #5A6DFF; }
+      50% { box-shadow: 0 0 0 #5A6DFF; margin-bottom: 0; transform: translate(15px, 15px); }
+      100% { box-shadow: 30px 0 0 #5A6DFF; margin-bottom: 10px; }
+    }
+    @keyframes ball2{
+      0% { box-shadow: 30px 0 0 #fff; }
+      50% { box-shadow: 0 0 0 #fff; margin-top: -20px; transform: translate(15px, 15px); }
+      100% { box-shadow: 30px 0 0 #fff; margin-top: 0; }
+    }
+
+    /* Modal */
+    .modal{
+      display:none; position:fixed; inset:0; z-index:1000;
+      background:rgba(6, 7, 15, .55);
+      backdrop-filter:blur(3px);
+    }
+    .modal-content{
+      background:#fff; margin:6% auto; padding:26px;
+      width:min(640px, 92%); border-radius:20px; position:relative;
+      box-shadow:0 24px 60px rgba(0,0,0,.24);
+    }
+    .close{
+      position:absolute; right:16px; top:12px; font-size:28px; color:#999; cursor:pointer; padding:2px 8px;
+    }
+    .close:hover{color:#000; background:#f3f3f3; border-radius:6px}
+
+    /* Expandido */
+    .stage.expandido::before{display:none}
+    .stage.expandido .options{display:none}
+    .stage.expandido .payment-wrap{grid-column:1/-1}
+    .stage.expandido .payment-container{width:min(1080px, 96%)}
+
+    
+
+    @media(max-width:980px){
+      .stage{grid-template-columns:1fr}
+      .stage::before{inset:0; clip-path: polygon(0 0, 100% 0, 100% 42%, 0% 70%)}
+      .options{margin:28px auto 10px; width:min(500px, 92%)}
+      .payment-wrap{padding:24px 16px}
+    }
+  </style>
+</head>
+<body>
+  <!-- <header onclick="volverAlInicio()">
+    <img src="https://primax.com.pe/wp-content/uploads/2024/08/logo-primaxGas-300x89.png" alt="Primax Gas">
+  </header> -->
+
+  <main class="stage" >
+    <a href="https://docs.pay-me.com/es/acceso-r-pidos/Working-version/datos-de-prueba"
+   target="_blank"
+   rel="noopener noreferrer">
+  <img class="payme-logo" src="Pay-MeLOOGOO.png" alt="Pay-Me">
+</a>
+
+    
+    <button class="panel-peek" id="panelPeek" type="button" aria-label="Abrir panel de credenciales">
+      <span class="peek-icon"><i class="bi bi-gear"></i></span>
+      <span class="peek-text">
+        <span class="peek-title">Credenciales Pay-me</span>
+        <span class="peek-sub">Configura tu ambiente</span>
+      </span>
+    </button>
+    <section class="options" aria-labelledby="ops-title">
+      <button class="panel-toggle" id="panelToggle" type="button" aria-label="Cerrar panel">
+        <i class="bi bi-chevron-left"></i>
+      </button>
+      <h2 id="ops-title">Credenciales Pay-me</h2>
+      <p class="sub">Ingresa las credenciales necesarias</p>
+
+      <div class="stack">
+        <div class="field">
+          <label for="envSelect">Entorno</label>
+          <div class="select-wrap">
+            <select id="envSelect" onchange="onEnvChange(event)">
+              <option value="dev">Testing</option>
+              <option value="prod">Producción</option>
+            </select>
+            <i class="bi bi-chevron-down"></i>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="profileSelect">Perfil guardado</label>
+          <div class="select-wrap">
+            <select id="profileSelect">
+              <option value="guest">Invitado</option>
+              <option value="__new__">+ Crear nuevo</option>
+            </select>
+            <i class="bi bi-chevron-down"></i>
+          </div>
+        </div>
+
+        <div class="field" id="profileNameWrap" style="display:none">
+          <label for="profileName">Nombre de perfil</label>
+          <input id="profileName" type="text" placeholder="Ej. Cuenta QA">
+        </div>
+
+        <div class="field">
+          <label for="clientId">Client ID</label>
+          <input id="clientId" type="text" placeholder="Client ID">
+        </div>
+
+        <div class="field">
+          <label for="clientSecret">Client Secret</label>
+          <input id="clientSecret" type="password" placeholder="Client Secret">
+        </div>
+
+        <div class="field">
+          <label for="merchantCode">Merchant Code</label>
+          <input id="merchantCode" type="text" placeholder="Merchant Code">
+        </div>
+
+        <div class="stack" style="margin-top:10px">
+          <button class="payment-option" id="saveProfileBtn" type="button" style="display:none">Guardar perfil</button>
+          <button class="payment-option" id="deleteProfileBtn" type="button" style="background:linear-gradient(120deg,#ff5b5b,#ff8a5b,#ffb35b)">Eliminar perfil</button>
+        </div>
+      </div>
+
+      <h3 class="metodos-title" style="margin-top:22px">Monto de Pago</h3>
+
+      <div class="stack">
+        <div class="field">
+          <label for="amount">Monto</label>
+          <input id="amount" type="number" min="0" step="0.01" placeholder="Ej. 100.00">
+          <small>Ingresa el monto en la moneda seleccionada.</small>
+        </div>
+
+        <div class="field">
+          <label for="currency">Moneda</label>
+          <div class="select-wrap">
+            <select id="currency">
+              <option value="604">PEN - Soles (604)</option>
+              <option value="840">USD - Dólares (840)</option>
+            </select>
+            <i class="bi bi-chevron-down"></i>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="metodos-title" style="margin-top:22px">Métodos de Pago</h3>
+
+      <div class="metodos-grid">
+        <label class="metodo-item">
+          <input type="checkbox" checked id="mp-tarjetas">
+          <div class="metodo-box">
+            <span class="check"></span>
+            <span class="metodo-text">Tarjetas</span>
+            <div class="logos">
+              <img src="visa.png" class="card" alt="">
+              <img src="mstc.png" class="card" alt="">
+              <img src="amex.png" class="card" alt="">
+              <img src="dinners.png" class="card" alt="">
+            </div>
+          </div>
+        </label>
+
+        <label class="metodo-item">
+          <input type="checkbox" id="mp-yape">
+          <div class="metodo-box">
+            <span class="check"></span>
+            <span class="metodo-text">Yape</span>
+            <img src="yape.png" class="logo-icon" alt="">
+          </div>
+        </label>
+
+        <label class="metodo-item">
+          <input type="checkbox" id="mp-qr">
+          <div class="metodo-box">
+            <span class="check"></span>
+            <span class="metodo-text">QR</span>
+            <img src="qr.png" class="logo-icon" alt="">
+          </div>
+        </label>
+
+        <label class="metodo-item">
+          <input type="checkbox" id="mp-cuotealo">
+          <div class="metodo-box">
+            <span class="check"></span>
+            <span class="metodo-text">Cuotéalo</span>
+            <img src="cuotealo.png" class="logo-icon" alt="">
+          </div>
+        </label>
+
+        <label class="metodo-item">
+          <input type="checkbox" id="mp-pagoefectivo">
+          <div class="metodo-box">
+            <span class="check"></span>
+            <span class="metodo-text">Pago Efectivo</span>
+            <img src="pagoefectivo.png" class="logo-icon" alt="">
+          </div>
+        </label>
+      </div>
+
+      <div class="stack" style="margin-top:22px">
+        <button class="payment-option" onclick="abrirFormularioNormal(200000)">Formulario Normal</button>
+        <button class="payment-option" onclick="abrirModal(100)">Pop Up</button>
+        <button class="payment-option" onclick="abrirFormularioExpandido(1500)">Formulario Expandido</button>
+      </div>
+    </section>
+    <section class="payment-wrap">
+      <div class="payment-container">
+        <div id="loading">Cargando pasarela...</div>
+        <span class="loader" id="loader"></span>
+        <div id="demo"></div>
+        <div id="responseBox" style="display:none; margin-top:16px;">
+          <h4 style="margin:0 0 8px; color:#222;">Respuesta</h4>
+          <pre id="responseOutput" style="white-space:pre-wrap; word-break:break-word; background:#f6f7fb; border:1px solid #e6e9f2; border-radius:12px; padding:12px; font-size:13px;"></pre>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal -->
+  <div id="paymentModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="cerrarModal()">&times;</span>
+      <h3 style="margin:4px 0 12px;color:#222">Pagar</h3>
+      <div id="loadingModal">Cargando pasarela...</div>
+      <div id="demoModal"></div>
+    </div>
+  </div>
+
+  <script>
+  const $ = (id) => document.getElementById(id);
+
+  const DEFAULT_CREDS = {
+    clientId: "Lj6tRqRzDiw56PPdSOOAgogT2HnIjf",
+    clientSecret: "ijuVhdIETgcryjRRAJPGCd9nIu8HetTqDTIYe7VFcScgrprFY4Usu0e3H5KUPKeu",
+    merchantCode: "453d8265-e01f-4ea5-9bfe-ca88b88e0beb",
+  };
+
+  const ENVS = {
+    dev: {
+      tokenUrl: "https://auth.preprod.alignet.io/token",
+      nonceUrl: "https://auth.preprod.alignet.io/nonce",
+      audienceApi: "https://api.preprod.alignet.io",
+      flexCssUrl: "https://flex.dev.pay-me.cloud/main-flex-payment-forms.css",
+      flexJsUrl: "https://flex.dev.pay-me.cloud/flex-payment-forms.min.js",
+    },
+    prod: {
+      tokenUrl: "https://auth.alignet.io/token",
+      nonceUrl: "https://auth.alignet.io/nonce",
+      audienceApi: "https://api.alignet.io",
+      flexCssUrl: "https://flex.alignet.io/main-flex-payment-forms.css",
+      flexJsUrl: "https://flex.alignet.io/flex-payment-forms.min.js",
+    },
+  };
+
+  const state = {
+    envKey: "dev",
+    cfg: ENVS.dev,
+    flexReady: Promise.resolve(),
+  };
+
+  let lastPaymeResponse = null;
+  const IDB_NAME = "payme_demo_db";
+  const IDB_VERSION = 1;
+  const IDB_STORE = "profiles";
+
+  function responseCallback(response) {
+    lastPaymeResponse = response;
+    console.log("-------Respuesta-------");
+    console.log({ response });
+
+    const demo = document.getElementById("demo");
+    if (demo) {
+      demo.innerHTML = "";
+      demo.style.display = "none";
+    }
+    const box = document.getElementById("responseBox");
+    const out = document.getElementById("responseOutput");
+    if (out) out.textContent = JSON.stringify(response, null, 2);
+    if (box) box.style.display = "block";
+  }
+
+  function trackingCallback(trackdata) {
+    console.log("-------Tracking de Eventos-------");
+    console.log({ trackdata });
+  }
+
+  function onErrorCallback(error) {
+    console.log("-------Error en el proceso-------");
+    console.log({ error });
+  }
+
+  function getEnvKey() {
+    const stored = localStorage.getItem("payme_env") || "dev";
+    return stored === "int" ? "dev" : stored;
+  }
+
+  function setEnv(envKey) {
+    state.envKey = envKey;
+    state.cfg = ENVS[envKey] || ENVS.dev;
+    localStorage.setItem("payme_env", envKey);
+  }
+
+  function loadFlexAssets(envKey) {
+    const cfg = ENVS[envKey] || ENVS.dev;
+
+    let link = document.getElementById("flex-css");
+    if (!link) {
+      link = document.createElement("link");
+      link.id = "flex-css";
+      link.rel = "stylesheet";
+      document.head.appendChild(link);
+    }
+    link.href = cfg.flexCssUrl;
+
+    const current = document.getElementById("flex-js");
+    if (current && current.getAttribute("data-src") === cfg.flexJsUrl && window.FlexPaymentForms) {
+      return Promise.resolve();
+    }
+    if (current) current.remove();
+
+    return new Promise((resolve, reject) => {
+      const s = document.createElement("script");
+      s.id = "flex-js";
+      s.src = cfg.flexJsUrl;
+      s.async = true;
+      s.setAttribute("data-src", cfg.flexJsUrl);
+      s.onload = () => resolve();
+      s.onerror = () => reject(new Error("No se pudo cargar FlexPaymentForms"));
+      document.head.appendChild(s);
+    });
+  }
+
+  async function initEnvSelect() {
+    const envKey = getEnvKey();
+    setEnv(envKey);
+    const sel = $("envSelect");
+    if (sel) sel.value = envKey;
+    state.flexReady = loadFlexAssets(envKey);
+    await state.flexReady;
+  }
+
+  async function onEnvChange(ev) {
+    ev?.stopPropagation?.();
+    const envKey = ev?.target?.value || "dev";
+    setEnv(envKey);
+    state.flexReady = loadFlexAssets(envKey);
+    await state.flexReady;
+  }
+
+  function getCreds() {
+    const clientId = ($("clientId")?.value || "").trim() || DEFAULT_CREDS.clientId;
+    const clientSecret = ($("clientSecret")?.value || "").trim() || DEFAULT_CREDS.clientSecret;
+    const merchantCode = ($("merchantCode")?.value || "").trim() || DEFAULT_CREDS.merchantCode;
+    return { clientId, clientSecret, merchantCode };
+  }
+
+  function openProfilesDb() {
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open(IDB_NAME, IDB_VERSION);
+      req.onupgradeneeded = () => {
+        const db = req.result;
+        if (!db.objectStoreNames.contains(IDB_STORE)) {
+          db.createObjectStore(IDB_STORE, { keyPath: "id" });
+        }
+      };
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async function readProfiles() {
+    try {
+      const db = await openProfilesDb();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(IDB_STORE, "readonly");
+        const store = tx.objectStore(IDB_STORE);
+        const req = store.getAll();
+        req.onsuccess = () => resolve(Array.isArray(req.result) ? req.result : []);
+        req.onerror = () => reject(req.error);
+        tx.oncomplete = () => db.close();
+      });
+    } catch (e) {
+      console.error("IndexedDB read failed", e);
+      return [];
+    }
+  }
+
+  async function writeProfiles(list) {
+    try {
+      const db = await openProfilesDb();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(IDB_STORE, "readwrite");
+        const store = tx.objectStore(IDB_STORE);
+        store.clear();
+        for (const item of list || []) store.put(item);
+        tx.oncomplete = () => {
+          db.close();
+          resolve();
+        };
+        tx.onerror = () => {
+          db.close();
+          reject(tx.error);
+        };
+      });
+    } catch (e) {
+      console.error("IndexedDB write failed", e);
+    }
+  }
+
+  function fillCreds(creds) {
+    if (!creds) return;
+    if ($("clientId")) $("clientId").value = creds.clientId || "";
+    if ($("clientSecret")) $("clientSecret").value = creds.clientSecret || "";
+    if ($("merchantCode")) $("merchantCode").value = creds.merchantCode || "";
+  }
+
+  function clearCreds() {
+    if ($("clientId")) $("clientId").value = "";
+    if ($("clientSecret")) $("clientSecret").value = "";
+    if ($("merchantCode")) $("merchantCode").value = "";
+  }
+
+  function setSelectedMethods(methods) {
+    const map = {
+      CARD: "mp-tarjetas",
+      YAPE: "mp-yape",
+      QR: "mp-qr",
+      CUOTEALO: "mp-cuotealo",
+      PAGOEFECTIVO: "mp-pagoefectivo",
+    };
+    const allIds = Object.values(map);
+    for (const id of allIds) {
+      const el = $(id);
+      if (el) el.checked = false;
+    }
+    for (const code of methods || []) {
+      const id = map[code];
+      const el = id ? $(id) : null;
+      if (el) el.checked = true;
+    }
+  }
+
+  async function applyProfileData(profile) {
+    if (!profile) return;
+    fillCreds(profile.creds);
+    if (profile.envKey) {
+      setEnv(profile.envKey);
+      const sel = $("envSelect");
+      if (sel) sel.value = profile.envKey;
+      state.flexReady = loadFlexAssets(profile.envKey);
+      await state.flexReady;
+    }
+    if (profile.currency && $("currency")) $("currency").value = profile.currency;
+    if (profile.amount && $("amount")) $("amount").value = profile.amount;
+    if (Array.isArray(profile.methods)) setSelectedMethods(profile.methods);
+  }
+
+  async function ensureProfileOptions() {
+    const sel = $("profileSelect");
+    if (!sel) return;
+    const current = sel.value;
+    const profiles = await readProfiles();
+
+    sel.innerHTML = "";
+    const guestOpt = document.createElement("option");
+    guestOpt.value = "guest";
+    guestOpt.textContent = "Invitado";
+    sel.appendChild(guestOpt);
+
+    for (const p of profiles) {
+      const opt = document.createElement("option");
+      opt.value = p.id;
+      opt.textContent = p.name;
+      sel.appendChild(opt);
+    }
+
+    const newOpt = document.createElement("option");
+    newOpt.value = "__new__";
+    newOpt.textContent = "+ Crear nuevo";
+    sel.appendChild(newOpt);
+
+    if (current && [...sel.options].some(o => o.value === current)) {
+      sel.value = current;
+    } else {
+      sel.value = "guest";
+    }
+  }
+
+  async function handleProfileSelect() {
+    const sel = $("profileSelect");
+    const nameWrap = $("profileNameWrap");
+    if (!sel || !nameWrap) return;
+    const value = sel.value;
+
+    if (value === "__new__") {
+      nameWrap.style.display = "block";
+      $("profileName").value = "";
+      clearCreds();
+      return;
+    }
+
+    nameWrap.style.display = "none";
+    if (value === "guest") {
+      clearCreds();
+      if ($("amount")) $("amount").value = "";
+      return;
+    }
+
+    const profiles = await readProfiles();
+    const selected = profiles.find(p => p.id === value);
+    if (selected) await applyProfileData(selected);
+  }
+
+  function buildProfileData(name) {
+    const creds = getCreds();
+    const envKey = state.envKey || "dev";
+    const currency = ($("currency")?.value || "604").trim();
+    const amount = ($("amount")?.value || "").trim();
+    const methods = getSelectedMethods();
+    return { name, creds, envKey, currency, amount, methods };
+  }
+
+  async function saveProfile() {
+    const sel = $("profileSelect");
+    const nameEl = $("profileName");
+    if (!sel || !nameEl) return;
+
+    const selected = sel.value;
+    const isNew = selected === "__new__";
+    const name = (nameEl.value || "").trim();
+    if (!name) {
+      alert("Ingresa un nombre de perfil.");
+      return;
+    }
+
+    const base = buildProfileData(name);
+    const profiles = await readProfiles();
+    let id = selected;
+
+    if (isNew || selected === "guest") {
+      id = `p_${Date.now().toString(36)}`;
+      profiles.push({ id, ...base });
+    } else {
+      const idx = profiles.findIndex(p => p.id === id);
+      if (idx >= 0) profiles[idx] = { id, ...base };
+      else profiles.push({ id, ...base });
+    }
+
+    await writeProfiles(profiles);
+    await ensureProfileOptions();
+    sel.value = id;
+    sel.dispatchEvent(new Event("change"));
+    $("profileNameWrap").style.display = "none";
+  }
+
+  async function autoSaveProfile(flowType) {
+    const sel = $("profileSelect");
+    const nameEl = $("profileName");
+    if (!sel || !nameEl) return;
+
+    const selected = sel.value;
+    if (selected === "guest") return;
+
+    let name = (nameEl.value || "").trim();
+    if (selected === "__new__" && !name) {
+      const stamp = new Date().toISOString().replace("T", " ").slice(0, 19);
+      name = `Perfil ${stamp}`;
+      nameEl.value = name;
+    }
+    if (!name) return;
+
+    const base = { ...buildProfileData(name), flowType };
+    const profiles = await readProfiles();
+    let id = selected;
+
+    if (selected === "__new__") {
+      id = `p_${Date.now().toString(36)}`;
+      profiles.push({ id, ...base });
+    } else {
+      const idx = profiles.findIndex(p => p.id === id);
+      if (idx >= 0) profiles[idx] = { id, ...base };
+      else profiles.push({ id, ...base });
+    }
+
+    await writeProfiles(profiles);
+    await ensureProfileOptions();
+    sel.value = id;
+    sel.dispatchEvent(new Event("change"));
+    $("profileNameWrap").style.display = "none";
+  }
+
+  async function deleteProfile() {
+    const sel = $("profileSelect");
+    if (!sel) return;
+    const id = sel.value;
+    if (!id || id === "guest" || id === "__new__") return;
+
+    const profiles = (await readProfiles()).filter(p => p.id !== id);
+    await writeProfiles(profiles);
+    await ensureProfileOptions();
+    await handleProfileSelect();
+  }
+
+  function getSelectedMethods() {
+    const map = [
+      ["mp-tarjetas", "CARD"],
+      ["mp-yape", "YAPE"],
+      ["mp-qr", "QR"],
+      ["mp-cuotealo", "CUOTEALO"],
+      ["mp-pagoefectivo", "PAGOEFECTIVO"],
+    ];
+    const methods = [];
+    for (const [id, code] of map) if ($(id)?.checked) methods.push(code);
+    return methods.length ? methods : ["CARD"];
+  }
+
+  function amountToMinorUnits(amountStr, decimals = 2) {
+    const normalized = String(amountStr || "")
+      .trim()
+      .replace(/\s/g, "")
+      .replace(",", ".");
+
+    if (!/^\d+(\.\d{0,2})?$/.test(normalized)) throw new Error("Monto inválido");
+
+    const [intPart, decPartRaw = ""] = normalized.split(".");
+    const decPart = (decPartRaw + "0".repeat(decimals)).slice(0, decimals);
+
+    const factor = BigInt(10) ** BigInt(decimals);
+    const minor = BigInt(intPart) * factor + BigInt(decPart);
+    return minor.toString();
+  }
+
+  function setAmountIfProvided(minorUnitsMaybe) {
+    if (minorUnitsMaybe === undefined || minorUnitsMaybe === null) return;
+    const el = $("amount");
+    if (!el) return;
+    const current = (el.value || "").trim();
+    if (current) return;
+
+    const n = Number(minorUnitsMaybe);
+    if (!Number.isFinite(n) || n <= 0) return;
+    el.value = (n / 100).toFixed(2);
+  }
+
+  async function fetchJson(url, body, token) {
+    const headers = { "Content-Type": "application/json" };
+    if (token) headers.Authorization = `Bearer ${token}`;
+
+    const r = await fetch(url, { method: "POST", headers, body: JSON.stringify(body) });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) {
+      const msg = j?.error_description || j?.message || `HTTP ${r.status}`;
+      throw new Error(msg);
+    }
+    return j;
+  }
+
+  async function obtenerAccessToken() {
+    const { clientId, clientSecret } = getCreds();
+    const cfg = state.cfg;
+
+    const j = await fetchJson(cfg.tokenUrl, {
+      action: "authorize",
+      grant_type: "client_credentials",
+      audience: cfg.audienceApi,
+      client_id: clientId,
+      client_secret: clientSecret,
+      scope: "create:token post:charges offline_access",
+    });
+
+    return j.access_token;
+  }
+
+  async function obtenerNonce(token) {
+    const { clientId } = getCreds();
+    const cfg = state.cfg;
+
+    const j = await fetchJson(
+      cfg.nonceUrl,
+      {
+        action: "create.nonce",
+        audience: cfg.audienceApi,
+        client_id: clientId,
+        scope: "post:charges",
+      },
+      token
+    );
+
+    return j.nonce;
+  }
+
+  function volverAlInicio(){window.location.reload();}
+
+  function abrirFormularioExpandido(monto){
+    const stage=document.querySelector('.stage');
+    stage.classList.add('expandido');
+    cargarFormulario(document.getElementById("demo"),document.getElementById("loading"),monto,"expandido");
+  }
+
+  async function cargarFormulario(target,loadingEl,montoMinorUnits,flowType){
+    const container = document.querySelector(".payment-container");
+    if (container) container.style.display = "block";
+    const spinner = document.getElementById("loader");
+    if (spinner) spinner.style.display = "inline-block";
+    if (loadingEl) loadingEl.style.display="block";
+    if (target) { target.style.display="none"; target.innerHTML=""; }
+
+    try{
+      setAmountIfProvided(montoMinorUnits);
+      const amountInput = $("amount")?.value || "";
+      const currency = $("currency")?.value || "604";
+      const amountToSend = amountToMinorUnits(amountInput, 2);
+      if (amountToSend === "0") throw new Error("Ingresa un monto válido.");
+
+      const token=await obtenerAccessToken();
+      const nonce=await obtenerNonce(token);
+
+      const { merchantCode } = getCreds();
+      const payload={action:"authorize",channel:"ecommerce",merchant_code:merchantCode,
+        merchant_operation_number:Math.floor(Date.now()).toString().substring(7),
+        payment_method:{},payment_details:{
+          amount:amountToSend,currency,
+          billing:{first_name:"Cliente",last_name:"Primax Gas",email:"cliente@primaxgas.pe",
+            phone:{country_code:"+51",subscriber:"999999999"},
+            location:{line_1:"Av. Ejemplo 123",line_2:"",city:"Lima",state:"Lima",country:"Peru"}}
+        }};
+
+      const methods = getSelectedMethods();
+
+      await state.flexReady;
+      if (typeof window.FlexPaymentForms !== "function") throw new Error("FlexPaymentForms no está disponible.");
+
+      const pf=new FlexPaymentForms({
+        nonce,payload,settings:{show_close_button:false,
+          display_result_screen:true,
+        },
+        display_settings:{methods}
+      });
+      pf.init(target, responseCallback, trackingCallback, onErrorCallback);
+      if (loadingEl) loadingEl.style.display="none";
+      if (spinner) spinner.style.display="none";
+      if (target) target.style.display="block";
+      document.querySelector(".stage")?.classList.add("flow-activo");
+      await autoSaveProfile(flowType);
+    }catch(e){
+      console.error(e);
+      alert(e?.message || "Error al cargar formulario.");
+      if (loadingEl) loadingEl.style.display="none";
+      if (spinner) spinner.style.display="none";
+    }
+  }
+
+  function abrirFormularioNormal(monto){
+    cargarFormulario(document.getElementById("demo"),document.getElementById("loading"),monto,"normal");
+  }
+  function abrirModal(monto){
+    document.getElementById("paymentModal").style.display="block";
+    cargarFormulario(document.getElementById("demoModal"),document.getElementById("loadingModal"),monto,"popup");
+  }
+  function cerrarModal(){
+    document.getElementById("paymentModal").style.display="none";
+    document.getElementById("demoModal").innerHTML="";
+  }
+
+  function togglePanel() {
+    const stage = document.querySelector(".stage");
+    if (!stage) return;
+    const closed = stage.classList.toggle("panel-cerrado");
+    const btn = document.getElementById("panelToggle");
+    if (btn) {
+      btn.innerHTML = closed ? '<i class="bi bi-chevron-right"></i>' : '<i class="bi bi-chevron-left"></i>';
+      btn.setAttribute("aria-label", closed ? "Abrir panel" : "Cerrar panel");
+    }
+    const container = document.querySelector(".payment-container");
+    const demo = document.getElementById("demo");
+    if (container && demo && demo.innerHTML.trim()) {
+      container.style.display = "block";
+      demo.style.display = "block";
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", async () => {
+    initEnvSelect();
+    document.getElementById("panelToggle")?.addEventListener("click", togglePanel);
+    document.getElementById("panelPeek")?.addEventListener("click", togglePanel);
+    await ensureProfileOptions();
+    await handleProfileSelect();
+    $("profileSelect")?.addEventListener("change", handleProfileSelect);
+    $("saveProfileBtn")?.addEventListener("click", saveProfile);
+    $("deleteProfileBtn")?.addEventListener("click", deleteProfile);
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,811 @@
+
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Pay-me • Demos</title>
+
+  <!-- CSS defensivo modal VPOS2 -->
+  <style>
+    html, body { height: 100%; }
+    body.modal-open { overflow: hidden; }
+
+    #alignetVPOS2Modal,
+    .alignet-modal,
+    .alignet-modal__content {
+      position: fixed !important;
+      inset: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      max-height: 100vh !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      border: 0 !important;
+      z-index: 2147483647 !important;
+      background: rgba(0,0,0,.6);
+    }
+
+    #alignetVPOS2Modal iframe,
+    .alignet-modal iframe,
+    iframe[src*="alignetsac.com"] {
+      display: block !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      min-height: 560px;
+      border: 0 !important;
+      background: #000;
+    }
+  </style>
+
+  <!-- Tu UI -->
+  <style>
+    :root{
+      --brand: #6aa189;
+      --brand-dark: #45675e;
+      --brand-blue:#5b81a0;
+
+      --bg: #f6f9f8;
+      --surface:#ffffff;
+      --text:#17201c;
+      --muted:#5c6761;
+
+      --border: rgba(15, 30, 22, .10);
+
+      --r-xl: 26px;
+      --r-lg: 18px;
+      --r-md: 14px;
+
+      --shadow-lg: 0 22px 55px rgba(0,0,0,.12);
+      --shadow-md: 0 12px 28px rgba(0,0,0,.10);
+      --shadow-sm: 0 8px 18px rgba(0,0,0,.06);
+
+      --t: .22s cubic-bezier(.2,.7,.2,1);
+    }
+
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{
+      min-height:100vh;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(900px 380px at 50% -120px, rgba(106,161,137,.30), transparent 55%),
+        radial-gradient(700px 420px at 10% 10%, rgba(91,129,160,.18), transparent 55%),
+        radial-gradient(700px 420px at 90% 20%, rgba(106,161,137,.14), transparent 60%),
+        var(--bg);
+      display:grid;
+      place-items:center;
+      padding: 28px 16px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .card{
+      width: min(620px, 100%);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-xl);
+      box-shadow: var(--shadow-lg);
+      padding: 26px;
+      position: relative;
+      overflow:hidden;
+    }
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      pointer-events:none;
+      background:
+        radial-gradient(420px 220px at 20% 0%, rgba(106,161,137,.18), transparent 60%),
+        radial-gradient(520px 240px at 90% 10%, rgba(91,129,160,.12), transparent 60%);
+      opacity:.9;
+    }
+    .card > *{ position:relative; }
+
+    .head{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+    .title{
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: -.2px;
+      color: var(--brand-dark);
+      line-height: 1.1;
+      margin-bottom: 6px;
+    }
+    .sub{
+      font-size: 13.5px;
+      color: var(--muted);
+      line-height: 1.45;
+      max-width: 46ch;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .10em;
+      text-transform: uppercase;
+      color: var(--brand-dark);
+      background: rgba(106,161,137,.14);
+      border: 1px solid rgba(106,161,137,.22);
+      white-space: nowrap;
+    }
+    .pill i{
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--brand);
+      box-shadow: 0 0 0 3px rgba(106,161,137,.15);
+      display:inline-block;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 14px;
+    }
+    @media (max-width: 560px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    .demo{
+      text-align:left;
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      background: #fff;
+      box-shadow: var(--shadow-sm);
+      padding: 14px;
+      cursor:pointer;
+      transition: transform var(--t), box-shadow var(--t), border-color var(--t);
+      position:relative;
+      outline:none;
+    }
+    .demo:hover{
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      border-color: rgba(106,161,137,.45);
+    }
+    .demo:active{ transform: translateY(-1px); }
+    .demo:focus-visible{
+      box-shadow: 0 0 0 4px rgba(106,161,137,.22), var(--shadow-md);
+      border-color: rgba(106,161,137,.55);
+    }
+
+    a.demo{
+      text-decoration:none;
+      color: inherit;
+      display: block;
+    }
+
+    .demo-top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom: 10px;
+    }
+    .demo-title{
+      font-size: 15px;
+      font-weight: 900;
+      color: var(--brand-dark);
+      letter-spacing: -.1px;
+    }
+    .demo-tag{
+      font-size: 11px;
+      font-weight: 900;
+      color:#fff;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--brand-blue), var(--brand));
+      box-shadow: 0 8px 18px rgba(0,0,0,.08);
+      white-space: nowrap;
+    }
+
+    .env-row{
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  gap:10px;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: #fbfcfc;
+}
+
+.env-label{
+  font-size:12px;
+  font-weight:900;
+  color: var(--muted);
+}
+
+.env-hint{
+  font-size:12px;
+  color: var(--muted);
+  font-weight:900;
+}
+
+.env-select{
+  padding: 8px 34px 8px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  font-weight: 900;
+  background: #fff;
+  cursor: pointer;
+  outline:none;
+  appearance:none;
+}
+
+/* flechita custom */
+.env-row{ position:relative; }
+.env-row::after{
+  content:"▾";
+  position:absolute;
+  left: 168px;              /* ajusta si cambias el label */
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 12px;
+  color: var(--muted);
+  pointer-events:none;
+}
+
+/* responsive: que no se rompa en móvil */
+@media (max-width: 520px){
+  .env-row{
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .env-row::after{ display:none; }
+  .env-select{ width: 100%; }
+}
+
+
+    .preview{
+      border-radius: var(--r-md);
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, #fff, #f4faf7);
+      overflow:hidden;
+      display:grid;
+      place-items:center;
+      aspect-ratio: 16 / 10;
+    }
+    .preview img{
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      padding: 10px;
+      display:block;
+      filter: saturate(1.02);
+    }
+
+    .demo-foot{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .demo-link{
+      color: var(--brand-dark);
+      font-weight: 900;
+    }
+    .demo-link::after{ content:" →"; }
+
+    .brand{
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .brand img{
+      max-width: 310px;
+      width: min(360px, 100%);
+      height: auto;
+      opacity: .96;
+      display:block;
+    }
+
+    .modal{
+      display:none;
+      position:fixed;
+      inset:0;
+      z-index:1000;
+      background: rgba(0,0,0,.55);
+      backdrop-filter: blur(6px);
+      padding: 18px;
+    }
+    .modal[aria-hidden="false"]{ display:block; }
+
+    .modal-content{
+      background: var(--surface);
+      margin: 7vh auto;
+      width: min(720px, 96%);
+      border-radius: 22px;
+      border: 1px solid var(--border);
+      box-shadow: 0 28px 80px rgba(0,0,0,.28);
+      overflow:hidden;
+      transform-origin: top center;
+      animation: pop .18s var(--t);
+      position: relative;
+    }
+    @keyframes pop{
+      from{ opacity:0; transform: translateY(10px) scale(.985); }
+      to  { opacity:1; transform: translateY(0) scale(1); }
+    }
+
+    .modal-body{ padding: 20px 20px 16px; }
+    .modal-head{
+      display:flex;
+      align-items:flex-start;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--brand-blue), var(--brand));
+      color:#fff;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .2px;
+      box-shadow: var(--shadow-sm);
+      white-space: nowrap;
+    }
+    .modal h3{
+      font-size: 18px;
+      font-weight: 950;
+      color: var(--brand-dark);
+      margin: 0;
+      letter-spacing: -.15px;
+    }
+    .modal p{
+      margin-top: 6px;
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .close{
+      position:absolute;
+      right:12px;
+      top:10px;
+      font-size: 26px;
+      color:#8a8a8a;
+      cursor:pointer;
+      padding: 6px 10px;
+      border-radius: 12px;
+      border:none;
+      background: transparent;
+      transition: background var(--t), color var(--t), transform var(--t);
+    }
+    .close:hover{
+      color:#000;
+      background:#f3f4f4;
+      transform: translateY(-1px);
+    }
+
+    .hint{
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    code{
+      background: rgba(106,161,137,.14);
+      padding: 3px 7px;
+      border-radius: 10px;
+      color: var(--brand-dark);
+      font-weight: 900;
+      border: 1px solid rgba(106,161,137,.20);
+    }
+
+    .slot{
+      margin-top:14px;
+      padding:16px;
+      border: 1px dashed rgba(15, 30, 22, .22);
+      border-radius: 16px;
+      background: linear-gradient(180deg, #fff, #fbfdfc);
+    }
+    .slot .slot-title{
+      font-weight: 950;
+      color: var(--brand-dark);
+      margin-bottom: 10px;
+    }
+
+    .field-grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap: 6px;
+    }
+    .field span{
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 900;
+    }
+    .field input{
+      padding: 12px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      outline: none;
+      font: inherit;
+    }
+    .field input:focus{
+      border-color: rgba(106,161,137,.55);
+      box-shadow: 0 0 0 4px rgba(106,161,137,.18);
+    }
+    .field.full{ grid-column: 1 / -1; }
+
+    .modal-actions{
+      display:flex;
+      gap: 10px;
+      padding: 14px 20px 18px;
+      justify-content:flex-end;
+      border-top: 1px solid var(--border);
+      background: #fbfcfc;
+    }
+    
+    .btn{
+      padding: 11px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #fff;
+      font-weight: 900;
+      cursor:pointer;
+      transition: transform var(--t), background var(--t), border var(--t), box-shadow var(--t);
+    }
+    .btn:hover{ transform: translateY(-1px); }
+    .btn.primary{
+      background: var(--brand);
+      border-color: transparent;
+      color:#fff;
+      box-shadow: var(--shadow-sm);
+    }
+    .btn.primary:hover{
+      background: var(--brand-dark);
+      box-shadow: var(--shadow-md);
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="card">
+    <header class="head">
+      <div>
+        <div class="title">Demo</div>
+        <div class="sub">Selecciona un demo para ver el flujo y los parámetros de integración de cada producto.</div>
+      </div>
+      <div class="pill"><i></i> Sandbox</div>
+    </header>
+
+    <section class="grid" aria-label="Demos disponibles">
+      <!-- VPOS2 abre el modal interno (tu UI) -->
+      <button class="demo" type="button" id="openModalVpos2" aria-haspopup="dialog" aria-controls="modal">
+        <div class="demo-top">
+          <div class="demo-title">VPOS 2 - Modal</div>
+          <div class="demo-tag">Modal</div>
+        </div>
+        <div class="preview">
+          <img src="fotoModal.png" alt="Preview VPOS 2 - Modal" loading="lazy">
+        </div>
+        <div class="demo-foot">
+          <span>Flujo modal embebido</span>
+          <span class="demo-link">Ver</span>
+        </div>
+      </button>
+
+      <!-- FLEX redirige (ojo: espacios en URL -> %20) -->
+      <a class="demo" href="FINAL%20EJEMPLO%20testing.html" target="_blank" rel="noopener">
+        <div class="demo-top">
+          <div class="demo-title">VPOS Flex - Flexible</div>
+          <div class="demo-tag">Flexible</div>
+        </div>
+        <div class="preview">
+          <img src="fotoFlex.png" alt="Preview VPOS Flex - Flexible" loading="lazy">
+        </div>
+        <div class="demo-foot">
+          <span>Widget flexible / iframe</span>
+          <span class="demo-link">Abrir</span>
+        </div>
+      </a>
+    </section>
+
+    <footer class="brand" aria-hidden="true">
+      <img src="https://i0.wp.com/anamaria.pe/wp-content/uploads/2018/04/cropped-cropped-cropped-logo-payme.png?resize=350%2C117&ssl=1" alt="">
+    </footer>
+  </main>
+
+  <!-- MODAL (contiene el FORM PRINCIPAL VPOS2) -->
+  <section class="modal" id="modal" aria-hidden="true" aria-labelledby="modalTitle" role="dialog">
+    <div class="modal-content" role="document">
+      <button class="close" id="closeModalBtn" type="button" aria-label="Cerrar modal">×</button>
+
+      <form name="f1" id="f1" action="#" method="post" class="alignet-form-vpos2">
+        <div class="modal-body">
+          <div class="env-row">
+            <span class="env-label">Ambiente</span>
+
+            <select id="envSelect" class="env-select">
+              <option value="test" selected>TEST</option>
+              <option value="prod">PROD</option>
+            </select>
+
+            <span id="envHint" class="env-hint"></span>
+          </div>
+          <div class="modal-head">
+            <div class="badge">VPOS 2</div>
+            <div>
+              <h3 id="modalTitle">Integración VPOS 2 - Modal</h3>
+              <p id="modalDesc">Completa los datos y presiona “Continuar” para abrir el checkout.</p>
+            </div>
+          </div>
+
+          <div class="hint">
+            Tip: el submit ejecuta:
+            <code id="openModalCode"></code>
+          </div>
+
+          <!-- Inputs visibles (DEMO) -->
+          <div class="slot">
+            <div class="slot-title">Datos de compra (Demo)</div>
+
+            <div class="field-grid">
+              <label class="field">
+                <span>Monto</span>
+                <input id="amountText" value="" readonly />
+              </label>
+
+              <label class="field">
+                <span>Moneda</span>
+                <input id="currencyText" value="" readonly />
+              </label>
+
+              <label class="field">
+                <span>Nombre</span>
+                <input id="shippingFirstName_visible" value="Juan" />
+              </label>
+
+              <label class="field">
+                <span>Apellido</span>
+                <input id="shippingLastName_visible" value="Perez" />
+              </label>
+
+              <label class="field full">
+                <span>Email</span>
+                <input id="shippingEmail_visible" value="perez.juan@test.com" />
+              </label>
+            </div>
+
+            <div class="hint" style="margin-top:10px;">
+              Operation #: <code id="opNumberText">—</code>
+            </div>
+
+          </div>
+
+          <!-- HIDDENs VPOS2 (REQUEST REAL) -->
+          <input type="hidden" name="acquirerId" value="">
+          <input type="hidden" name="idCommerce" value="">
+          <input type="hidden" name="purchaseOperationNumber" value="">
+          <input type="hidden" name="purchaseAmount" value="">
+          <input type="hidden" name="purchaseCurrencyCode" value="">
+
+          <input type="hidden" name="language" value="SP" />
+
+          <input type="hidden" id="shippingFirstName" name="shippingFirstName" value="Juan" />
+          <input type="hidden" id="shippingLastName"  name="shippingLastName"  value="Perez" />
+          <input type="hidden" id="shippingEmail"     name="shippingEmail"     value="perez.juan@test.com" />
+
+          <input type="hidden" name="shippingAddress" value="Direcion ABC" />
+          <input type="hidden" name="shippingZIP" value="ZIP 123" />
+          <input type="hidden" name="shippingCity" value="CITY ABC" />
+          <input type="hidden" name="shippingState" value="Lima" />
+          <input type="hidden" name="shippingCountry" value="PE" />
+
+          <input type="hidden" name="descriptionProducts" value="Producto ABC" />
+          <input type="hidden" name="programmingLanguage" value="Java" />
+          <input type="hidden" name="purchaseVerification" value="">
+
+          <input type="hidden" name="reserved1" value="1" />
+          <input type="hidden" name="reserved2" value="Sede Miraflores" />
+          <input type="hidden" name="reserved3" value="" />
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn" id="cancelBtn" type="button">Cerrar</button>
+          <button class="btn primary" id="continueBtn" type="submit">Continuar</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <script>
+  // ====== Ambientes ======
+  const SDK_BY_ENV = {
+    test: "https://integracion.alignetsac.com/VPOS2/js/modalcomercio.js",
+    prod: "https://vpayment.verifika.com/VPOS2/js/modalcomercio.js"
+  };
+
+  const CONFIG_BY_ENV = {
+    test: {
+      baseUrl: "https://integracion.alignetsac.com/",
+      acquirerId: "144",
+      idCommerce: "20655",
+      purchaseAmount: "100",
+      purchaseCurrencyCode: "604",
+      secret: "GZneGTTYafrsXWNDP@4729582994"
+      /*
+      20655
+    INT PRUEBA S 
+    admintprus
+    Alignet20255
+    */
+    },
+    prod: {
+      baseUrl: "https://vpayment.verifika.com/", // <-- pon tu base prod real si es otra
+      acquirerId: "29",                          // <-- el que indicaste
+      idCommerce: "20500",
+      purchaseAmount: "100",
+      purchaseCurrencyCode: "840",
+      secret: "AaRLqRjNCqjXCumd$527543857"
+    }
+  };
+
+  // ✅ Default SIEMPRE TEST al entrar (pero al cambiar mantiene env en la URL)
+  const params = new URLSearchParams(location.search);
+  let currentEnv = params.get("env") || "test";
+  let CONFIG = CONFIG_BY_ENV[currentEnv];
+
+  // Carga el SDK del ambiente actual
+  (function loadVposSdk(){
+    const s = document.createElement("script");
+    s.src = SDK_BY_ENV[currentEnv];
+    s.defer = true;
+    document.head.appendChild(s);
+  })();
+
+  // ====== UI refs ======
+  const modal = document.getElementById("modal");
+  const openVpos2 = document.getElementById("openModalVpos2");
+  const closeBtn = document.getElementById("closeModalBtn");
+  const cancelBtn = document.getElementById("cancelBtn");
+  const form = document.getElementById("f1");
+
+  const envSelect = document.getElementById("envSelect");
+  const envHint = document.getElementById("envHint");
+  const openModalCode = document.getElementById("openModalCode");
+
+  let lastFocusEl = null;
+  let prevOverflow = "";
+
+  function refreshEnvUI(){
+    envSelect.value = currentEnv;
+    envHint.textContent = currentEnv === "test" ? "(Integraciones)" : "(Producción)";
+    openModalCode.textContent = `AlignetVPOS2.openModal("${CONFIG.baseUrl}", "2")`;
+  }
+
+  // Cambio de ambiente: recarga con ?env=test|prod
+  envSelect.addEventListener("change", () => {
+    currentEnv = envSelect.value;
+    params.set("env", currentEnv);
+    location.search = params.toString();
+  });
+
+  function last7FromMillis() {
+    const t = String(Date.now());
+    return t.slice(-7);
+  }
+
+  async function sha512Hex(str) {
+    // Nota: si crypto.subtle no existe en tu navegador con file://, usa un server local.
+    const enc = new TextEncoder();
+    const data = enc.encode(str);
+    const hash = await crypto.subtle.digest("SHA-512", data);
+    return [...new Uint8Array(hash)].map(b => b.toString(16).padStart(2, "0")).join("");
+  }
+
+  async function buildVposPayload() {
+    const purchaseOperationNumber = last7FromMillis();
+
+    document.querySelector('[name="acquirerId"]').value = CONFIG.acquirerId;
+    document.querySelector('[name="idCommerce"]').value = CONFIG.idCommerce;
+    document.querySelector('[name="purchaseOperationNumber"]').value = purchaseOperationNumber;
+    document.querySelector('[name="purchaseAmount"]').value = CONFIG.purchaseAmount;
+    document.querySelector('[name="purchaseCurrencyCode"]').value = CONFIG.purchaseCurrencyCode;
+
+    document.getElementById("amountText").value = CONFIG.purchaseAmount;
+    document.getElementById("currencyText").value = CONFIG.purchaseCurrencyCode;
+
+    const input = CONFIG.acquirerId + CONFIG.idCommerce + purchaseOperationNumber +
+                  CONFIG.purchaseAmount + CONFIG.purchaseCurrencyCode + CONFIG.secret;
+
+    const purchaseVerification = await sha512Hex(input);
+    document.querySelector('[name="purchaseVerification"]').value = purchaseVerification;
+
+    const opEl = document.getElementById("opNumberText");
+    if (opEl) opEl.textContent = purchaseOperationNumber;
+  }
+
+  function openModal(fromBtn){
+    lastFocusEl = fromBtn;
+    prevOverflow = document.documentElement.style.overflow;
+    document.documentElement.style.overflow = "hidden";
+    document.body.classList.add("modal-open");
+
+    // Refresca UI + payload cada vez que abres
+    CONFIG = CONFIG_BY_ENV[currentEnv];
+    refreshEnvUI();
+    buildVposPayload();
+
+    modal.setAttribute("aria-hidden", "false");
+    closeBtn.focus();
+  }
+
+  function closeModal(){
+    modal.setAttribute("aria-hidden", "true");
+    document.documentElement.style.overflow = prevOverflow || "";
+    document.body.classList.remove("modal-open");
+    if (lastFocusEl) lastFocusEl.focus();
+  }
+
+  openVpos2.addEventListener("click", () => openModal(openVpos2));
+  closeBtn.addEventListener("click", closeModal);
+  cancelBtn.addEventListener("click", closeModal);
+
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) closeModal();
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && modal.getAttribute("aria-hidden") === "false") closeModal();
+  });
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    document.getElementById("shippingFirstName").value =
+      document.getElementById("shippingFirstName_visible").value || "Juan";
+    document.getElementById("shippingLastName").value =
+      document.getElementById("shippingLastName_visible").value || "Perez";
+    document.getElementById("shippingEmail").value =
+      document.getElementById("shippingEmail_visible").value || "perez.juan@test.com";
+
+    closeModal();
+
+    if (!window.AlignetVPOS2 || typeof AlignetVPOS2.openModal !== "function") {
+      alert("El SDK de VPOS2 aún no cargó. Intenta de nuevo en 1 segundo.");
+      return;
+    }
+
+    setTimeout(() => {
+      AlignetVPOS2.openModal(CONFIG.baseUrl, "2");
+    }, 80);
+  });
+
+  // Inicial
+  window.addEventListener("DOMContentLoaded", () => {
+    CONFIG = CONFIG_BY_ENV[currentEnv];
+    refreshEnvUI();
+    buildVposPayload();
+  });
+</script>
+
+</body>
+</html>
