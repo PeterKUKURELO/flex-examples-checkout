@@ -40,6 +40,7 @@
       background: var(--fondo);
       color:var(--gris-900);
       -webkit-font-smoothing:antialiased;
+      overflow-x:hidden;
     }
 
     /* Header */
@@ -58,7 +59,8 @@
     .stage{
       display:grid;
       grid-template-columns: 430px 1fr;
-      min-height:100vh;
+      width:100%;
+      height:100vh;
       position:relative;
     }
     .payme-logo{
@@ -103,11 +105,14 @@
       border:1px solid rgba(255,255,255,.5);
       backdrop-filter: blur(12px) saturate(140%);
       -webkit-backdrop-filter: blur(12px) saturate(140%);
+      max-height:calc(100vh - 80px);
+      overflow-y:auto;
+      overflow-x:hidden;
     }
     .panel-toggle{
       position:absolute;
-      right:-18px;
-      top:22px;
+      right:12px;
+      top:12px;
       width:36px;
       height:36px;
       border:none;
@@ -200,8 +205,9 @@
       font-weight:700;
       color:var(--violeta);
       margin-bottom:6px;
+      padding-right:56px;
     }
-    .sub{font-size:13px; color:var(--gris-600); margin-bottom:18px}
+    .sub{font-size:13px; color:var(--gris-600); margin-bottom:18px; padding-right:56px}
 
     .field{display:flex; flex-direction:column; gap:4px}
     .field label{font-size:14px; font-weight:600; color:var(--azul)}
@@ -243,6 +249,9 @@
       font-size:16px;
       color:var(--gris-600);
       pointer-events:none;
+    }
+    .full-width-btn{
+      width:100%;
     }
 
     /* Botones */
@@ -401,6 +410,29 @@
     }
     .close:hover{color:#000; background:#f3f3f3; border-radius:6px}
 
+    .result-grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap:12px;
+    }
+    .result-card{
+      background:#f6f7fb;
+      border:1px solid #e6e9f2;
+      border-radius:12px;
+      padding:12px;
+      font-size:13px;
+    }
+    .result-label{
+      color:#6b7280;
+      font-size:12px;
+      margin-bottom:4px;
+    }
+    .result-value{
+      color:#111827;
+      font-weight:600;
+      word-break:break-word;
+    }
+
     /* Expandido */
     .stage.expandido::before{display:none}
     .stage.expandido .options{display:none}
@@ -532,7 +564,7 @@
         </label>
 
         <label class="metodo-item">
-          <input type="checkbox" id="mp-yape">
+          <input type="checkbox" checked id="mp-yape">
           <div class="metodo-box">
             <span class="check"></span>
             <span class="metodo-text">Yape</span>
@@ -541,7 +573,7 @@
         </label>
 
         <label class="metodo-item">
-          <input type="checkbox" id="mp-qr">
+          <input type="checkbox" checked id="mp-qr">
           <div class="metodo-box">
             <span class="check"></span>
             <span class="metodo-text">QR</span>
@@ -550,7 +582,7 @@
         </label>
 
         <label class="metodo-item">
-          <input type="checkbox" id="mp-cuotealo">
+          <input type="checkbox" checked id="mp-cuotealo">
           <div class="metodo-box">
             <span class="check"></span>
             <span class="metodo-text">Cuotéalo</span>
@@ -559,13 +591,24 @@
         </label>
 
         <label class="metodo-item">
-          <input type="checkbox" id="mp-pagoefectivo">
+          <input type="checkbox" checked id="mp-pagoefectivo">
           <div class="metodo-box">
             <span class="check"></span>
             <span class="metodo-text">Pago Efectivo</span>
             <img src="pagoefectivo.png" class="logo-icon" alt="">
           </div>
         </label>
+      </div>
+
+      <div class="field" style="margin-top:18px">
+        <label for="displayResultScreen">Pantalla de resultado (display_result_screen)</label>
+        <div class="select-wrap">
+          <select id="displayResultScreen">
+            <option value="true" selected>True</option>
+            <option value="false">False</option>
+          </select>
+          <i class="bi bi-chevron-down"></i>
+        </div>
       </div>
 
       <div class="stack" style="margin-top:22px">
@@ -581,7 +624,23 @@
         <div id="demo"></div>
         <div id="responseBox" style="display:none; margin-top:16px;">
           <h4 style="margin:0 0 8px; color:#222;">Respuesta</h4>
-          <pre id="responseOutput" style="white-space:pre-wrap; word-break:break-word; background:#f6f7fb; border:1px solid #e6e9f2; border-radius:12px; padding:12px; font-size:13px;"></pre>
+          <div class="result-grid" id="responseCards"></div>
+          <div class="stack" style="margin-top:10px">
+            <button class="payment-option" id="toggleResponseJson" type="button">Ver JSON de respuesta</button>
+          </div>
+          <pre id="responseJsonOutput" style="display:none; white-space:pre-wrap; word-break:break-word; background:#0f172a; color:#e2e8f0; border:1px solid #0f172a; border-radius:12px; padding:12px; font-size:12px; margin-top:10px;"></pre>
+        </div>
+        <div id="resultScreen" style="display:none; margin-top:16px;">
+          <h4 style="margin:0 0 8px; color:#222;">Resultado</h4>
+          <div style="background:#f6f7fb; border:1px solid #e6e9f2; border-radius:12px; padding:12px; font-size:13px;">
+            <div><strong>display_result_screen:</strong> <span id="displayResultValue">-</span></div>
+            <div><strong>Estado:</strong> <span id="resultStatus">-</span></div>
+          </div>
+          <div class="stack" style="margin-top:10px">
+            <button class="payment-option full-width-btn" id="toggleRequestJson" type="button">Ver JSON enviado</button>
+            <button class="payment-option full-width-btn" id="downloadSessionNotes" type="button">Descargar notas</button>
+          </div>
+          <pre id="requestOutput" style="display:none; white-space:pre-wrap; word-break:break-word; background:#0f172a; color:#e2e8f0; border:1px solid #0f172a; border-radius:12px; padding:12px; font-size:12px; margin-top:10px;"></pre>
         </div>
       </div>
     </section>
@@ -605,6 +664,9 @@
     clientSecret: "ijuVhdIETgcryjRRAJPGCd9nIu8HetTqDTIYe7VFcScgrprFY4Usu0e3H5KUPKeu",
     merchantCode: "453d8265-e01f-4ea5-9bfe-ca88b88e0beb",
   };
+  const AUTO_START_ON_LOAD = true;
+  const AUTO_START_FLOW = "normal";
+  const AUTO_START_MINOR_UNITS = 1000;
 
   const ENVS = {
     dev: {
@@ -630,6 +692,7 @@
   };
 
   let lastPaymeResponse = null;
+  let lastRequestPayload = null;
   const IDB_NAME = "payme_demo_db";
   const IDB_VERSION = 1;
   const IDB_STORE = "profiles";
@@ -645,9 +708,9 @@
       demo.style.display = "none";
     }
     const box = document.getElementById("responseBox");
-    const out = document.getElementById("responseOutput");
-    if (out) out.textContent = JSON.stringify(response, null, 2);
+    renderPrettyResponse(response);
     if (box) box.style.display = "block";
+    renderResultScreen(response);
   }
 
   function trackingCallback(trackdata) {
@@ -790,6 +853,7 @@
     if ($("clientSecret")) $("clientSecret").value = "";
     if ($("merchantCode")) $("merchantCode").value = "";
   }
+
 
   function setSelectedMethods(methods) {
     const map = {
@@ -934,9 +998,11 @@
 
     let name = (nameEl.value || "").trim();
     if (selected === "__new__" && !name) {
-      const stamp = new Date().toISOString().replace("T", " ").slice(0, 19);
-      name = `Perfil ${stamp}`;
+      name = buildProfileName();
       nameEl.value = name;
+    }
+    if (!name && selected !== "__new__") {
+      name = buildProfileName();
     }
     if (!name) return;
 
@@ -982,7 +1048,197 @@
     ];
     const methods = [];
     for (const [id, code] of map) if ($(id)?.checked) methods.push(code);
-    return methods.length ? methods : ["CARD"];
+    return methods.length ? methods : ["CARD", "YAPE", "QR", "CUOTEALO", "PAGOEFECTIVO"];
+  }
+
+  function getDisplayResultScreen() {
+    const val = ($("displayResultScreen")?.value || "true").toLowerCase();
+    return val === "true";
+  }
+
+  function pathGet(obj, path) {
+    try {
+      return path.split(".").reduce((acc, key) => acc && acc[key], obj);
+    } catch {
+      return undefined;
+    }
+  }
+
+  function firstValue(obj, paths) {
+    for (const p of paths) {
+      const v = pathGet(obj, p);
+      if (v !== undefined && v !== null && v !== "") return v;
+    }
+    return "-";
+  }
+
+  function renderPrettyResponse(response) {
+    const container = $("responseCards");
+    if (!container) return;
+    const items = [
+      ["Estado", firstValue(response, ["transaction.state", "status", "result", "response_code", "code"])],
+      ["Mensaje", firstValue(response, ["transaction.state_reason", "meta.status.message_ilgn.0.value", "message", "description", "detail"])],
+      ["Transacción", firstValue(response, ["transaction.transaction_id", "transaction_id", "payment_id", "id", "transactionId"])],
+      ["Operación", firstValue(response, ["merchant_operation_number", "operation_number", "operationId"])],
+      ["Autorización", firstValue(response, ["transaction.processor_response.authorization_code", "authorization_code", "auth_code"])],
+      ["Monto", firstValue(response, ["transaction.amount", "amount", "payment_details.amount", "payment.amount"])],
+      ["Moneda", firstValue(response, ["transaction.currency", "currency", "payment_details.currency", "payment.currency"])],
+      ["Método", firstValue(response, ["transaction.payment_method.method_name", "payment_method", "method", "payment_method_type"])],
+      ["Marca", firstValue(response, ["transaction.payment_method.method_details.brand", "card.brand", "card.brand_name", "brand"])],
+      ["Últimos 4", firstValue(response, ["transaction.payment_method.method_details.last_pan", "card.last4", "card.last4_digits", "last4"])],
+      ["Fecha", firstValue(response, ["transaction.processor_response.authorization_date", "created_at", "createdAt", "date"])],
+    ];
+
+    container.innerHTML = items
+      .map(([label, value]) => {
+        return `
+          <div class="result-card">
+            <div class="result-label">${label}</div>
+            <div class="result-value">${String(value)}</div>
+          </div>
+        `;
+      })
+      .join("");
+
+    const jsonOut = $("responseJsonOutput");
+    if (jsonOut) jsonOut.textContent = JSON.stringify(response || {}, null, 2);
+  }
+
+  function resetResponseUI() {
+    const box = $("responseBox");
+    const cards = $("responseCards");
+    const resJson = $("responseJsonOutput");
+    const resultScreen = $("resultScreen");
+    const displayVal = $("displayResultValue");
+    const statusEl = $("resultStatus");
+    const reqOut = $("requestOutput");
+
+    if (cards) cards.innerHTML = "";
+    if (resJson) {
+      resJson.textContent = "";
+      resJson.style.display = "none";
+    }
+    if (box) box.style.display = "none";
+    if (resultScreen) resultScreen.style.display = "none";
+    if (displayVal) displayVal.textContent = "-";
+    if (statusEl) statusEl.textContent = "-";
+    if (reqOut) {
+      reqOut.textContent = "";
+      reqOut.style.display = "none";
+    }
+  }
+
+  function formatPeruDateTime(mode) {
+    const fmt = new Intl.DateTimeFormat("es-PE", {
+      timeZone: "America/Lima",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+    });
+    const parts = fmt.formatToParts(new Date()).reduce((acc, p) => {
+      acc[p.type] = p.value;
+      return acc;
+    }, {});
+    const yyyy = parts.year || "0000";
+    const mm = parts.month || "00";
+    const dd = parts.day || "00";
+    const HH = parts.hour || "00";
+    const MM = parts.minute || "00";
+    const SS = parts.second || "00";
+
+    if (mode === "file") return `${yyyy}${mm}${dd}-${HH}${MM}${SS}`;
+    if (mode === "time") return `${HH}:${MM}:${SS}`;
+    return `${dd}/${mm}/${yyyy} ${HH}:${MM}:${SS}`;
+  }
+
+  function getCurrencyLabel(code) {
+    if (String(code) === "604") return "Soles";
+    if (String(code) === "840") return "Dólares";
+    return String(code || "-");
+  }
+
+  function buildProfileName() {
+    const env = state.envKey || "dev";
+    const time = formatPeruDateTime("time");
+    const currency = getCurrencyLabel($("currency")?.value || "604");
+    return `Perfil guardado - ${env} - ${time} - ${currency}`;
+  }
+
+  function buildSessionNotes() {
+    const profileName = ($("profileName")?.value || $("profileSelect")?.selectedOptions?.[0]?.textContent || "").trim();
+    const currencyCode = ($("currency")?.value || "604").trim();
+    const currencyLabel = getCurrencyLabel(currencyCode);
+    const meta = {
+      profile: profileName || "-",
+      env: state.envKey || "dev",
+      currency_code: currencyCode,
+      currency_label: currencyLabel,
+      display_result_screen: getDisplayResultScreen(),
+      saved_at_utc: new Date().toISOString(),
+      saved_at_pe: formatPeruDateTime(),
+    };
+    const payload = lastRequestPayload || {};
+    const response = lastPaymeResponse || {};
+    return [
+      "=== PAY-ME FLEX SESSION NOTES ===",
+      "",
+      "[META]",
+      JSON.stringify(meta, null, 2),
+      "",
+      "[REQUEST]",
+      JSON.stringify(payload, null, 2),
+      "",
+      "[RESPONSE]",
+      JSON.stringify(response, null, 2),
+      "",
+    ].join("\n");
+  }
+
+  function downloadSessionNotes() {
+    const content = buildSessionNotes();
+    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const stamp = formatPeruDateTime("file");
+    const env = state.envKey || "dev";
+    const currencyCode = ($("currency")?.value || "604").trim();
+    const currencyLabel = getCurrencyLabel(currencyCode);
+    const profileName = ($("profileName")?.value || $("profileSelect")?.selectedOptions?.[0]?.textContent || "perfil")
+      .trim()
+      .replace(/\s+/g, "-")
+      .replace(/[^\w-]/g, "");
+    a.href = url;
+    a.download = `payme-session-notes-${profileName}-${env}-${currencyLabel}-${stamp}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  function renderResultScreen(response) {
+    const screen = $("resultScreen");
+    if (!screen) return;
+    const displayVal = $("displayResultValue");
+    const statusEl = $("resultStatus");
+    const reqOut = $("requestOutput");
+
+    if (displayVal) displayVal.textContent = String(getDisplayResultScreen());
+    if (statusEl) {
+      const status =
+        response?.status ||
+        response?.response_code ||
+        response?.result ||
+        "OK";
+      statusEl.textContent = String(status);
+    }
+    if (reqOut && lastRequestPayload) {
+      reqOut.textContent = JSON.stringify(lastRequestPayload, null, 2);
+    }
+    screen.style.display = "block";
   }
 
   function amountToMinorUnits(amountStr, decimals = 2) {
@@ -1075,6 +1331,7 @@
     if (spinner) spinner.style.display = "inline-block";
     if (loadingEl) loadingEl.style.display="block";
     if (target) { target.style.display="none"; target.innerHTML=""; }
+    resetResponseUI();
 
     try{
       setAmountIfProvided(montoMinorUnits);
@@ -1087,14 +1344,45 @@
       const nonce=await obtenerNonce(token);
 
       const { merchantCode } = getCreds();
-      const payload={action:"authorize",channel:"ecommerce",merchant_code:merchantCode,
-        merchant_operation_number:Math.floor(Date.now()).toString().substring(7),
-        payment_method:{},payment_details:{
-          amount:amountToSend,currency,
-          billing:{first_name:"Cliente",last_name:"Primax Gas",email:"cliente@primaxgas.pe",
-            phone:{country_code:"+51",subscriber:"999999999"},
-            location:{line_1:"Av. Ejemplo 123",line_2:"",city:"Lima",state:"Lima",country:"Peru"}}
-        }};
+      const payload={
+        action: "authorize",
+        channel: "ecommerce",
+        merchant_code: merchantCode,
+        merchant_operation_number: Math.floor(Date.now())
+          .toString()
+          .substring(7),
+        payment_method: {},
+        payment_details: {
+          amount: amountToSend,
+          currency: currency,
+          billing: {
+            first_name: "Cliente",
+            last_name: "Primax Gas",
+            email: "cliente@primaxgas.pe",
+            phone: {
+              country_code: "+51",
+              subscriber: "999999999"
+            },
+            location: {
+              line_1: "Av. Ejemplo 123",
+              line_2: "",
+              city: "Lima",
+              state: "Lima",
+              country: "Peru"
+            }
+          }
+        },
+        customer: {
+          first_name: "Cliente",
+          last_name: "Primax Gas",
+        },
+        additional_fields: {
+          field_1: "Valor 1",
+          field_2: "Valor 2"
+        }
+      };
+
+      lastRequestPayload = payload;
 
       const methods = getSelectedMethods();
 
@@ -1103,7 +1391,7 @@
 
       const pf=new FlexPaymentForms({
         nonce,payload,settings:{show_close_button:false,
-          display_result_screen:true,
+          display_result_screen:getDisplayResultScreen(),
         },
         display_settings:{methods}
       });
@@ -1150,6 +1438,28 @@
     }
   }
 
+  async function autoStartFlow() {
+    if (!AUTO_START_ON_LOAD) return;
+    await state.flexReady;
+
+    const amountInput = ($("amount")?.value || "").trim();
+    const minorUnits = amountInput ? null : AUTO_START_MINOR_UNITS;
+    if (AUTO_START_FLOW === "popup") {
+      abrirModal(minorUnits || AUTO_START_MINOR_UNITS);
+      return;
+    }
+    if (AUTO_START_FLOW === "expandido") {
+      abrirFormularioExpandido(minorUnits || AUTO_START_MINOR_UNITS);
+      return;
+    }
+    await cargarFormulario(
+      document.getElementById("demo"),
+      document.getElementById("loading"),
+      minorUnits || AUTO_START_MINOR_UNITS,
+      "normal"
+    );
+  }
+
   document.addEventListener("DOMContentLoaded", async () => {
     initEnvSelect();
     document.getElementById("panelToggle")?.addEventListener("click", togglePanel);
@@ -1159,6 +1469,20 @@
     $("profileSelect")?.addEventListener("change", handleProfileSelect);
     $("saveProfileBtn")?.addEventListener("click", saveProfile);
     $("deleteProfileBtn")?.addEventListener("click", deleteProfile);
+    $("toggleRequestJson")?.addEventListener("click", () => {
+      const pre = $("requestOutput");
+      if (!pre) return;
+      const showing = pre.style.display !== "none";
+      pre.style.display = showing ? "none" : "block";
+    });
+    $("toggleResponseJson")?.addEventListener("click", () => {
+      const pre = $("responseJsonOutput");
+      if (!pre) return;
+      const showing = pre.style.display !== "none";
+      pre.style.display = showing ? "none" : "block";
+    });
+    $("downloadSessionNotes")?.addEventListener("click", downloadSessionNotes);
+    await autoStartFlow();
   });
 </script>
 </body>
