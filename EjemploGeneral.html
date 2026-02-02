@@ -31,6 +31,9 @@
       --shadow-1:0 8px 22px rgba(15, 23, 42, .10);
       --shadow-2:0 18px 48px rgba(15, 23, 42, .18);
       --timing:.25s cubic-bezier(.2,.7,.2,1);
+      --logo-clearance: clamp(120px, 18vw, 260px);
+      --logo-height: clamp(72px, 9vw, 120px);
+      --logo-gap: clamp(40px, 8vw, 90px);
     }
 
     *{margin:0;padding:0;box-sizing:border-box}
@@ -63,14 +66,22 @@
       height:100vh;
       position:relative;
     }
+    .stage-top{
+      position:absolute;
+      top:12px;
+      right:24px;
+      z-index:3;
+      display:flex;
+      justify-content:flex-end;
+      align-items:center;
+      pointer-events:auto;
+    }
     .payme-logo{
-      position: absolute;
-      right: 24px;
- 
+      position: static;
       z-index: 3;
 
       /* Responsive + proporcional */
-      width: clamp(190px, 18vw, 280px); /* min, ideal, max */
+      width: clamp(90px, 15vw, 180px); /* min, ideal, max */
       height: auto;
       aspect-ratio: auto; /* mantiene proporciÃ³n natural */
 
@@ -83,7 +94,7 @@
     }
     .stage::before{
       content:"";
-      position:absolute;
+      position:fixed;
       inset:0 38% 0 0;
       background: url("Fondooooo.png") center/cover no-repeat;
       clip-path: polygon(0 0, 100% 0, 86% 100%, 0% 100%);
@@ -93,8 +104,8 @@
     /* Caja opciones */
     .options{
       grid-column:1/2;
-      align-self:center;
-      margin:40px;
+      align-self:stretch;
+      margin:15px;
       background:rgba(255,255,255,.6);
       border-radius:var(--radius-xl);
       box-shadow:var(--shadow-2);
@@ -105,8 +116,7 @@
       border:1px solid rgba(255,255,255,.5);
       backdrop-filter: blur(12px) saturate(140%);
       -webkit-backdrop-filter: blur(12px) saturate(140%);
-      max-height:calc(100vh - 80px);
-      overflow-y:auto;
+      overflow:auto;
       overflow-x:hidden;
     }
     .panel-toggle{
@@ -190,6 +200,11 @@
       grid-column:1/-1;
       justify-content:center;
       align-items:center;
+      padding-top: calc(15px + var(--logo-gap));
+      padding-right: calc(15px + var(--logo-clearance));
+    }
+    .stage.panel-cerrado .payment-container{
+      transform: translateX(calc(var(--logo-clearance) / 2));
     }
     .stage.flow-activo .payment-container{
       display:block;
@@ -337,21 +352,38 @@
     /* Ãrea formulario */
     .payment-wrap{
       grid-column:2/3;
-      display:flex; align-items:center; justify-content:center;
-      padding:50px;
+      display:flex;
+      align-items:stretch;
+      justify-content:stretch;
+      padding:15px;
+      padding-top: calc(15px + var(--logo-gap));
+      padding-right:15px;
       z-index:1;
     }
     .payment-container{
-      width:min(950px, 100%);
-      background:var(--blanco);
+      width:100%;
+      max-width:none;
+      background:rgba(255,255,255,.6);
       border:1px solid var(--gris-200);
       border-radius:var(--radius-lg);
       box-shadow:var(--shadow-1);
       padding:28px;
+      backdrop-filter: blur(12px) saturate(140%);
+      -webkit-backdrop-filter: blur(12px) saturate(140%);
       display:none;
+      margin-inline:auto;
+      transform: translateX(0);
     }
     #loading{font-size:18px; color:#666; display:none}
-    #demo{display:none; width:100%}
+    #demo{
+      display:none;
+      width:100%;
+      background:var(--blanco);
+      border:1px solid var(--gris-200);
+      border-radius:var(--radius-lg);
+      box-shadow:var(--shadow-1);
+      padding:20px;
+    }
     .loader{
       display:none;
       animation: rotate 1s infinite;
@@ -437,15 +469,106 @@
     .stage.expandido::before{display:none}
     .stage.expandido .options{display:none}
     .stage.expandido .payment-wrap{grid-column:1/-1}
-    .stage.expandido .payment-container{width:min(1080px, 96%)}
+    .stage.expandido .payment-container{width:100%}
 
     
 
     @media(max-width:980px){
       .stage{grid-template-columns:1fr}
       .stage::before{inset:0; clip-path: polygon(0 0, 100% 0, 100% 42%, 0% 70%)}
-      .options{margin:28px auto 10px; width:min(500px, 92%)}
+      .options{margin:24px 16px 16px; width:min(500px, 92%)}
       .payment-wrap{padding:24px 16px}
+      .payment-container{transform: translateX(0)}
+    }
+
+    @media(max-width:640px){
+      body{background: #eef1ff}
+      .stage{
+        grid-template-columns:1fr;
+        height:auto;
+        min-height:100dvh;
+      }
+      .stage::before{
+        position:fixed;
+        inset:0;
+        clip-path: polygon(0 0, 100% 0, 100% 36%, 0% 62%);
+        opacity:.9;
+      }
+      .stage-top{
+        right:12px;
+        top:10px;
+      }
+      .payme-logo{
+        width: clamp(70px, 26vw, 140px);
+        filter: drop-shadow(-8px 0 10px rgba(120, 120, 120, 0.7));
+      }
+      .options{
+        position:fixed;
+        inset:0;
+        margin:0;
+        width:100%;
+        max-width:none;
+        height:100dvh;
+        padding:70px 16px 18px;
+        border-radius:0;
+        transform:translateX(-105%);
+        opacity:0;
+        pointer-events:none;
+        z-index:8;
+      }
+      .options h2{font-size:20px}
+      .sub{font-size:12px}
+      .metodos-grid{grid-template-columns:1fr}
+      .payment-wrap{
+        padding:12px;
+        padding-top:12px;
+      }
+      .payment-container{
+        padding:20px;
+      }
+      .panel-peek{
+        left:12px;
+        top:12px;
+        width:44px;
+        height:44px;
+        max-width:none;
+        padding:0;
+        border-radius:14px;
+        justify-content:center;
+      }
+      .panel-peek .peek-text{display:none}
+      .panel-peek .peek-icon{
+        width:100%;
+        height:100%;
+        border-radius:14px;
+        font-size:20px;
+      }
+      .panel-toggle{
+        position:fixed;
+        right:12px;
+        top:12px;
+        width:36px;
+        height:36px;
+        border-radius:12px;
+        z-index:9;
+      }
+      .stage:not(.panel-cerrado) .options{
+        transform:translateX(0);
+        opacity:1;
+        pointer-events:auto;
+      }
+      .stage.panel-cerrado .payment-wrap{
+        padding-top:12px;
+        padding-right:12px;
+      }
+      .stage.panel-cerrado .payment-container{
+        transform:none;
+      }
+      .payment-option:nth-child(1),
+      .payment-option:nth-child(2),
+      .payment-option:nth-child(3){
+        --w:100%;
+      }
     }
   </style>
 </head>
@@ -454,19 +577,21 @@
     <img src="https://primax.com.pe/wp-content/uploads/2024/08/logo-primaxGas-300x89.png" alt="Primax Gas">
   </header> -->
 
-  <main class="stage" >
-    <a href="https://docs.pay-me.com/es/acceso-r-pidos/Working-version/datos-de-prueba"
-   target="_blank"
-   rel="noopener noreferrer">
-  <img class="payme-logo" src="Pay-MeLOOGOO.png" alt="Pay-Me">
-</a>
+  <main class="stage panel-cerrado" >
+    <div class="stage-top">
+      <a href="https://docs.pay-me.com/es/acceso-r-pidos/Working-version/datos-de-prueba"
+         target="_blank"
+         rel="noopener noreferrer">
+        <img class="payme-logo" src="Pay-MeLOOGOO.png" alt="Pay-Me">
+      </a>
+    </div>
 
     
-    <button class="panel-peek" id="panelPeek" type="button" aria-label="Abrir panel de credenciales">
-      <span class="peek-icon"><i class="bi bi-gear"></i></span>
+    <button class="panel-peek" id="panelPeek" type="button" aria-label="Abrir menú">
+      <span class="peek-icon"><i class="bi bi-list"></i></span>
       <span class="peek-text">
-        <span class="peek-title">Credenciales Pay-me</span>
-        <span class="peek-sub">Configura tu ambiente</span>
+        <span class="peek-title">Menú</span>
+        <span class="peek-sub">Credenciales</span>
       </span>
     </button>
     <section class="options" aria-labelledby="ops-title">
@@ -612,7 +737,7 @@
       </div>
 
       <div class="stack" style="margin-top:22px">
-        <button class="payment-option" onclick="abrirFormularioNormal(200000)">Formulario Normal</button>
+        <button class="payment-option" onclick=out"abrirFormularioNormal(200000)">Formulario Normal</button>
         <button class="payment-option" onclick="abrirModal(100)">Pop Up</button>
         <button class="payment-option" onclick="abrirFormularioExpandido(1500)">Formulario Expandido</button>
       </div>
