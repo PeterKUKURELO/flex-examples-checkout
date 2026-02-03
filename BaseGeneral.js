@@ -53,8 +53,14 @@
   const envSelect = document.getElementById("envSelect");
   const envHint = document.getElementById("envHint");
   const openModalCode = document.getElementById("openModalCode");
+  const acquirerIdInput = document.getElementById("acquirerIdInput");
+  const idCommerceInput = document.getElementById("idCommerceInput");
+  const secretInput = document.getElementById("secretInput");
+  const amountText = document.getElementById("amountText");
+  const currencyText = document.getElementById("currencyText");
 
-  if (!modal || !openVpos2 || !closeBtn || !cancelBtn || !form || !envSelect || !envHint || !openModalCode) {
+  if (!modal || !openVpos2 || !closeBtn || !cancelBtn || !form || !envSelect || !envHint || !openModalCode ||
+      !acquirerIdInput || !idCommerceInput || !secretInput || !amountText || !currencyText) {
     return;
   }
 
@@ -65,6 +71,19 @@
     envSelect.value = currentEnv;
     envHint.textContent = currentEnv === "test" ? "(Integraciones)" : "(Produccion)";
     openModalCode.textContent = `AlignetVPOS2.openModal("${CONFIG.baseUrl}", "2")`;
+  }
+
+  function setEnvDefaults() {
+    acquirerIdInput.value = CONFIG.acquirerId;
+    idCommerceInput.value = CONFIG.idCommerce;
+    secretInput.value = CONFIG.secret;
+    amountText.value = CONFIG.purchaseAmount;
+    currencyText.value = CONFIG.purchaseCurrencyCode;
+  }
+
+  function getFieldValue(el, fallback) {
+    const v = (el.value || "").trim();
+    return v ? v : fallback;
   }
 
   // Cambio de ambiente: recarga con ?env=test|prod
@@ -90,17 +109,23 @@
   async function buildVposPayload() {
     const purchaseOperationNumber = last7FromMillis();
 
-    document.querySelector('[name="acquirerId"]').value = CONFIG.acquirerId;
-    document.querySelector('[name="idCommerce"]').value = CONFIG.idCommerce;
+    const acquirerId = getFieldValue(acquirerIdInput, CONFIG.acquirerId);
+    const idCommerce = getFieldValue(idCommerceInput, CONFIG.idCommerce);
+    const purchaseAmount = getFieldValue(amountText, CONFIG.purchaseAmount);
+    const purchaseCurrencyCode = getFieldValue(currencyText, CONFIG.purchaseCurrencyCode);
+    const secret = getFieldValue(secretInput, CONFIG.secret);
+
+    document.querySelector('[name="acquirerId"]').value = acquirerId;
+    document.querySelector('[name="idCommerce"]').value = idCommerce;
     document.querySelector('[name="purchaseOperationNumber"]').value = purchaseOperationNumber;
-    document.querySelector('[name="purchaseAmount"]').value = CONFIG.purchaseAmount;
-    document.querySelector('[name="purchaseCurrencyCode"]').value = CONFIG.purchaseCurrencyCode;
+    document.querySelector('[name="purchaseAmount"]').value = purchaseAmount;
+    document.querySelector('[name="purchaseCurrencyCode"]').value = purchaseCurrencyCode;
 
-    document.getElementById("amountText").value = CONFIG.purchaseAmount;
-    document.getElementById("currencyText").value = CONFIG.purchaseCurrencyCode;
+    amountText.value = purchaseAmount;
+    currencyText.value = purchaseCurrencyCode;
 
-    const input = CONFIG.acquirerId + CONFIG.idCommerce + purchaseOperationNumber +
-                  CONFIG.purchaseAmount + CONFIG.purchaseCurrencyCode + CONFIG.secret;
+    const input = acquirerId + idCommerce + purchaseOperationNumber +
+                  purchaseAmount + purchaseCurrencyCode + secret;
 
     const purchaseVerification = await sha512Hex(input);
     document.querySelector('[name="purchaseVerification"]').value = purchaseVerification;
@@ -169,6 +194,7 @@
   window.addEventListener("DOMContentLoaded", () => {
     CONFIG = CONFIG_BY_ENV[currentEnv];
     refreshEnvUI();
+    setEnvDefaults();
     buildVposPayload();
   });
 })();

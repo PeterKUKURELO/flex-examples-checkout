@@ -96,7 +96,7 @@
       content:"";
       position:fixed;
       inset:0 38% 0 0;
-      background: url("Fondooooo.png") center/cover no-repeat;
+      background: url("images/Fondooooo.png") center/cover no-repeat;
       clip-path: polygon(0 0, 100% 0, 86% 100%, 0% 100%);
       z-index:0;
     }
@@ -582,7 +582,7 @@
       <a href="https://docs.pay-me.com/es/acceso-r-pidos/Working-version/datos-de-prueba"
          target="_blank"
          rel="noopener noreferrer">
-        <img class="payme-logo" src="Pay-MeLOOGOO.png" alt="Pay-Me">
+        <img class="payme-logo" src="images/Pay-MeLOOGOO.png" alt="Pay-Me">
       </a>
     </div>
 
@@ -680,10 +680,10 @@
             <span class="check"></span>
             <span class="metodo-text">Tarjetas</span>
             <div class="logos">
-              <img src="visa.png" class="card" alt="">
-              <img src="mstc.png" class="card" alt="">
-              <img src="amex.png" class="card" alt="">
-              <img src="dinners.png" class="card" alt="">
+              <img src="images/visa.png" class="card" alt="">
+              <img src="images/mstc.png" class="card" alt="">
+              <img src="images/amex.png" class="card" alt="">
+              <img src="images/dinners.png" class="card" alt="">
             </div>
           </div>
         </label>
@@ -693,7 +693,7 @@
           <div class="metodo-box">
             <span class="check"></span>
             <span class="metodo-text">Yape</span>
-            <img src="yape.png" class="logo-icon" alt="">
+            <img src="images/yape.png" class="logo-icon" alt="">
           </div>
         </label>
 
@@ -702,7 +702,7 @@
           <div class="metodo-box">
             <span class="check"></span>
             <span class="metodo-text">QR</span>
-            <img src="qr.png" class="logo-icon" alt="">
+            <img src="images/qr.png" class="logo-icon" alt="">
           </div>
         </label>
 
@@ -711,7 +711,7 @@
           <div class="metodo-box">
             <span class="check"></span>
             <span class="metodo-text">Cuotéalo</span>
-            <img src="cuotealo.png" class="logo-icon" alt="">
+            <img src="images/cuotealo.png" class="logo-icon" alt="">
           </div>
         </label>
 
@@ -720,7 +720,7 @@
           <div class="metodo-box">
             <span class="check"></span>
             <span class="metodo-text">Pago Efectivo</span>
-            <img src="pagoefectivo.png" class="logo-icon" alt="">
+            <img src="images/pagoefectivo.png" class="logo-icon" alt="">
           </div>
         </label>
       </div>
@@ -849,8 +849,7 @@
   }
 
   function getEnvKey() {
-    const stored = localStorage.getItem("payme_env") || "dev";
-    return stored === "int" ? "dev" : stored;
+    return "dev";
   }
 
   function setEnv(envKey) {
@@ -1481,15 +1480,15 @@
           amount: amountToSend,
           currency: currency,
           billing: {
-            first_name: "Cliente",
-            last_name: "Primax Gas",
-            email: "cliente@primaxgas.pe",
+            first_name: "Peter",
+            last_name: "Kukurelo",
+            email: "peter.kukurelo@pay-me.com",
             phone: {
               country_code: "+51",
               subscriber: "999999999"
             },
             location: {
-              line_1: "Av. Ejemplo 123",
+              line_1: "Av. Siempre Viva 123",
               line_2: "",
               city: "Lima",
               state: "Lima",
